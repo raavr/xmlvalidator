@@ -7,17 +7,18 @@ import java.util.ArrayList;
  * @author rykowskr
  */
 
-/*\
-S ---> XML_ST atrybuty XML_END tag_root KONIEC
-tag_root ---> OTW_ID atrybuty ZAM tag OTW_SL_ID ZAM
-tag ---> OTW_ID atrybuty tag_kont | NAPIS_DOWOLNY tag | ?
-tag_kont ---> UKOS ZAM tag
-tag_kont ---> ZAM tag OTW_SL_ID ZAM tag
-atrybuty ---> atrybut atrybuty | ?
-atrybut ---> NAPIS_SECJALNY ROW WAR_ATR | ?
+/* GRAMMA
+
+    S ---> XML_START atrybuty XML_END tag_root END
+    tag_root ---> LESSTHAN_ID atrybuty GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN
+    tag ---> LESSTHAN_ID atrybuty tag_kont | ANY_STRING tag | ?
+    tag_kont ---> SLASH GREATERTHAN tag
+    tag_kont ---> GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN tag
+    atrybuty ---> atrybut atrybuty | ?
+    atrybut ---> ATTR_NAME EQ ATTR_VALUE | ?
+
  */
 public class Parser {
-
 
     private ArrayList<Integer> listind;
     private int biezacy_leks;
@@ -25,25 +26,24 @@ public class Parser {
 
 
     public Parser(String file, ArrayList list) {
-        Const.wypelnij();
         listind = new ArrayList<Integer>(list);
         lekser = new Lekser(file);
     }
 
     public void wypisz() {
-        System.err.println("blad skladni " + Const.ht.get(biezacy_leks));
+        System.err.println("Blad skladni " + Constant.hm.get(biezacy_leks));
     }
 
     //do sygnalizacji bledow - zwraca indeks blednego znaku z oryginalnego pliku XML
     private int zwrocIndeks() {
         int i = 1;
         for(int j : listind)
-            if (j > lekser.getChar_num())
-                if(listind.get(1) > lekser.getChar_num())
+            if (j > lekser.getNextCharNumber())
+                if(listind.get(1) > lekser.getNextCharNumber())
                     return i-1;
                 else
                     return i;
-            else if (j == lekser.getChar_num())
+            else if (j == lekser.getNextCharNumber())
                 return i+1;
             else i++;
         return -1;
@@ -54,12 +54,12 @@ public class Parser {
         biezacy_leks = 0;
         pobierzLeksem(0);
 
-        //s -> XML_ST atrybuty XML_END tag_root KONIEC
-        pobierzLeksem(Const.XML_ST);
+        //s -> XML_START atrybuty XML_END tag_root END
+        pobierzLeksem(Constant.XML_START);
         atrybuty();
-        pobierzLeksem(Const.XML_END);
+        pobierzLeksem(Constant.XML_END);
         tag_root();
-        pobierzLeksem(Const.KONIEC);
+        pobierzLeksem(Constant.END);
         System.out.println("==================");
         System.out.println("XML jest poprawny.");
         System.out.println("==================");
@@ -67,9 +67,9 @@ public class Parser {
     }
 
     //atrybuty ---> atrybut atrybuty | ?
-    public void atrybuty() {
+    private void atrybuty() {
         switch (biezacy_leks) {
-            case Const.NAPIS_SPECJALNY:
+            case Constant.ATTR_NAME:
                 atrybut();
                 atrybuty();
                 break;
@@ -78,45 +78,45 @@ public class Parser {
         }
     }
 
-    //atrybut ---> NAPIS_SECJALNY ROW WAR_ATR | ?
-    public void atrybut() {
+    //atrybut ---> NAPIS_SECJALNY EQ ATTR_VALUE | ?
+    private void atrybut() {
         switch (biezacy_leks) {
-            case Const.NAPIS_SPECJALNY:
-                pobierzLeksem(Const.NAPIS_SPECJALNY);
-                pobierzLeksem(Const.ROW);
-                pobierzLeksem(Const.WAR_ATR);
+            case Constant.ATTR_NAME:
+                pobierzLeksem(Constant.ATTR_NAME);
+                pobierzLeksem(Constant.EQ);
+                pobierzLeksem(Constant.ATTR_VALUE);
                 break;
             default:
                 break;
         }
     }
 
-    //tag_root ---> OTW_ID atrybuty ZAM tag OTW_SL_ID ZAM
-    public void tag_root() {
+    //tag_root ---> LESSTHAN_ID atrybuty GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN
+    private void tag_root() {
         switch (biezacy_leks) {
 
-            case Const.OTW_ID:
-                pobierzLeksem(Const.OTW_ID);
+            case Constant.LESSTHAN_ID:
+                pobierzLeksem(Constant.LESSTHAN_ID);
                 atrybuty();
-                pobierzLeksem(Const.ZAM);
+                pobierzLeksem(Constant.GREATERTHAN);
                 tag();
-                pobierzLeksem(Const.OTW_SL_ID);
-                pobierzLeksem(Const.ZAM);
+                pobierzLeksem(Constant.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Constant.GREATERTHAN);
                 break;
             default:
                 System.err.println("Blad skladni tag_root");
         }
     }
-    //tag ---> OTW_ID atrybuty tag_kont | NAPIS_DOWOLNY tag | ?
-    public void tag() {
+    //tag ---> LESSTHAN_ID atrybuty tag_kont | ANY_STRING tag | ?
+    private void tag() {
         switch (biezacy_leks) {
-            case Const.OTW_ID:
-                pobierzLeksem(Const.OTW_ID);
+            case Constant.LESSTHAN_ID:
+                pobierzLeksem(Constant.LESSTHAN_ID);
                 atrybuty();
                 tag_kont();
                 break;
-            case Const.NAPIS_DOWOLNY:
-                pobierzLeksem(Const.NAPIS_DOWOLNY);
+            case Constant.ANY_STRING:
+                pobierzLeksem(Constant.ANY_STRING);
                 tag();
                 break;
             default:
@@ -124,20 +124,20 @@ public class Parser {
         }
     }
 
-    //tag_kont ---> UKOS ZAM tag
-    //tag_kont ---> ZAM tag OTW_SL_ID ZAM tag
-    public void tag_kont() {
+    //tag_kont ---> SLASH GREATERTHAN tag
+    //tag_kont ---> GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN tag
+    private void tag_kont() {
         switch (biezacy_leks) {
-            case Const.UKOS:
-                pobierzLeksem(Const.UKOS);
-                pobierzLeksem(Const.ZAM);
+            case Constant.SLASH:
+                pobierzLeksem(Constant.SLASH);
+                pobierzLeksem(Constant.GREATERTHAN);
                 tag();
                 break;
-            case Const.ZAM:
-                pobierzLeksem(Const.ZAM);
+            case Constant.GREATERTHAN:
+                pobierzLeksem(Constant.GREATERTHAN);
                 tag();
-                pobierzLeksem(Const.OTW_SL_ID);
-                pobierzLeksem(Const.ZAM);
+                pobierzLeksem(Constant.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Constant.GREATERTHAN);
                 tag();
                 break;
             default:
@@ -148,11 +148,11 @@ public class Parser {
 
 
 
-    public void pobierzLeksem(int s) {
+    private void pobierzLeksem(int s) {
         if (biezacy_leks == s) {
             biezacy_leks = lekser.lekser();
         } else {
-            System.err.println("blad skladni " + Const.ht.get(s) + " linia: " + (zwrocIndeks()-1) + " numer " + (lekser.getChar_num() - listind.get(zwrocIndeks()-2)));
+            System.err.println("Blad skladni " + Constant.hm.get(s) + " linia: " + (zwrocIndeks()-1) + " numer " + (lekser.getNextCharNumber() - listind.get(zwrocIndeks()-2)));
             System.exit(0);
 
         }

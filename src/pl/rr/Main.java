@@ -33,18 +33,15 @@ public class Main {
                 if (akt == '\n') {
                     list.add(i);
                 }
-                cont.append((char) c);
+                cont.append(akt);
                 i++;
             }
             in.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String s = cont.toString();
-        Parser parser = new Parser(s, list);
-        char k = '-';
-        String str = "" + k;
-        System.out.println("Wynik: " + str.matches("[0-35-79.]"));
+
+        Parser parser = new Parser(cont.toString(), list);
 
         try {
 

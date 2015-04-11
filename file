@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <catalog>
+<!-- asdsad -->
 <book id="bk101">
 <author>Gambardella, Matthew</author>
 <title>XML Developer's Guide</title>
@@ -11,6 +12,7 @@ look at creating applications
 with XML.</description>
 </book>
 <book id="bk102" zd="23">
+<!-- asdsad -->
 <author>Ralls, Kim</author>sad
 <title>Midnight Rain</title>
 <genre>Fantasy</genre>

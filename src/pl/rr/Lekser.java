@@ -9,13 +9,11 @@ import java.util.ArrayList;
 public class Lekser {
 
     private int char_num = 0;
-    private int nrwiersza = 1;
     private ArrayList<String> tagId;
     private StringBuilder strBld;
-    private boolean inTag = false;
+    private boolean insideTag = false;
     private String xml;
-    private char t;
-
+    private char currentCharacter;
 
     public Lekser(String xml) {
         tagId = new ArrayList<String>();
@@ -27,138 +25,215 @@ public class Lekser {
         return char_num;
     }
 
-    public int getNrwiersza() {
-        return nrwiersza;
-    }
-
     public int lekser() {
 
-
         while (true) {
+            if (isLastCharacter())
+                return endOfXmlFileSymbol();
 
-            if (isLastCharacter()) return Const.KONIEC;
             getNextChar();
             char_num++;
 
+            //if space or tab, skip
             if (isSpaceOrTabCharacter())
                 ;
-            else if (isNewLineCharacter()) {
-                nrwiersza++;
-            } else if (isLessThenCharacter()) {
 
-                if (isStartXMLDeclaration()) { //jesli < i ?xml, zwracam XML_ST
-                    char_num = char_num + 4;
-                    return Const.XML_ST;
+            //if < and ...
+            else if (isLessThenCharacter()) {
 
-                } else if (isStartOfComment()) { //jesli komentarz - pomijam, dopoki nie znajde -->
-                    char_num = char_num + 3;
-                    getNextChar();
-                    while (!isEndOfComment()) {
-                        getNextCharIfPossible();
-                    }
-                    char_num = char_num + 4;
+                //... ?xml, return XML_ST
+                if (isStartXMLDeclaration())
+                    return startOfXmlDeclarationSymbol();
 
+                //... the beginning of a comment, skip until find --> string
+                else if (isStartOfComment())
+                    skipComment();
 
-                } else if (isLetter()) { //jesli < i dowolny ciag znakow, zwracam OTW_ID
-                    getNextChar();
-                    strBld.setLength(0);
-                    while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
-                        strBld.append(t);
-                        getNextCharIfPossible();
-                    }
-                    tagId.add(strBld.toString()); //dodaje ID tagu do listy
+                //... any string, return OTW_ID
+                else if (isNextCharacterOfALetter())
+                    return startOfTagWithTagNameSymbol();
 
-                    return Const.OTW_ID;
+                //... / and any string, return OTW_SL_ID
+                else if (isNextCharacterOfASlashCharacter())
+                    return startOfEndOfTagWithTagNameSymbol();
 
-                } else if (isSlashCharacter()) { //jesli < / i dowolny ciag znakow, zwracm OTW_SL_ID
-                    char_num++;
-                    getNextChar();
+            //if ? and >, return XML_END
+            } else if (isQuestionMark() && isNextCharacterOfAGreaterThanCharacter()) {
+                return endOfXmlDeclarationSymbol();
 
-                    strBld.setLength(0);
-                    while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
-                        strBld.append(t);
-                        getNextCharIfPossible();
-                    }
+            //if >, return ZAM
+            } else if (isGreaterThanCharacter()) {
+                return endOfTagSymbol();
 
-                    if (isOpeningTagEqualsToClosingTag()) { //sprawdz tag otwierajacy z zamykajacym
-                        System.err.println("Tag zamykaj¹cy: <" + strBld.toString() + "> nie zgadza siê z otwieraj¹cym: <" + tagId.get(tagId.size() - 1) + ">");
-                        return 1;
-                    } else {
-                        tagId.remove(tagId.size() - 1);
-                    }
+            //if / return UKOS
+            } else if (isSlashCharacter()) {
+                return slashSymbol();
 
-                    return Const.OTW_SL_ID;
-                }
+            //if =, return ROW
+            } else if (isEqualsCharacter()) {
+                return equalSymbol();
 
-            } else if (isQuestionMark() && isGreaterThanCharacter()) { //jesli ? > zwracam XML_END
-                char_num = char_num + 1;
-                return Const.XML_END;
+            //if " and any string and ", return WAR_ATR
+            } else if (isDoubleQuotes()) {
+                return valueOfAttrSymbol();
 
-            } else if (t == '>') { //jesli > zwrcam ZAM
-                if (char_num < xml.length()) {
-                    if (!(xml.charAt(char_num) == '<')) {
-                        inTag = true;
-                        return Const.ZAM;
-                    } else {
-                        return Const.ZAM;
-                    }
-                }
-                return Const.ZAM;
+            //if I'm inside tag declaration and character is letter, return NAPIS_SPECJALNY (name of attribute)
+            } else if (isLetter() && !insideTag) {
+                return attrSymbol();
 
-            } else if (t == '/') { //jesli / zwracam UKOS
-                if (isGreaterThanCharacter()) {
-                    tagId.remove(tagId.size() - 1);
-                }
-                return Const.UKOS;
-
-            } else if (t == '=') { //jesli = zwracam ROW
-                return Const.ROW;
-
-            } else if (t == '"') { //jesli " pobieram wszystko do " i zwracam WAR_ATR
-                getNextChar();
-                while (t != '"') {
-                    if (isLessThenCharacter()) {
-                        return 1;
-                    }
-
-                    getNextCharIfPossible();
-                }
-
-                char_num++;
-                return Const.WAR_ATR;
-
-            } else if (Character.isLetter(t) && inTag == false) { //jesli inTag == false, jestem w nazwie atrybutu, zwracam NAPIS_SPECJALNY
-
-                while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
-                    if (char_num < xml.length()) {
-                        getNextChar();
-                        char_num++;
-                    }
-                }
-                char_num--;
-                return Const.NAPIS_SPECJALNY;
-
-            } else if (t != '<' && inTag == true) { //w przeciwnym wypadku zwracam NAPIS_DOWOLNY, ktory dopuszcza biale znaki
-                inTag = false;
-                while (t != '<' || Character.isWhitespace(t)) {
-                    if (char_num < xml.length()) {
-                        getNextChar();
-                        char_num++;
-                    }
-                }
-                char_num--;
-                return Const.NAPIS_DOWOLNY;
+            //if I'm inside tag, return NAPIS_DOWOLNY
+            } else if (!isLessThenCharacter() && insideTag) {
+                return xmlElementSymbol();
 
             }
         }
     }
 
+    private int xmlElementSymbol() {
+        insideTag = false;
+        while (!isLessThenCharacter() || isWhitespace()) {
+            if (char_num < xml.length()) {
+                getNextChar();
+                char_num++;
+            }
+        }
+        char_num--;
+        return Const.NAPIS_DOWOLNY;
+    }
+
+    private int attrSymbol() {
+        while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
+            if (char_num < xml.length()) {
+                getNextChar();
+                char_num++;
+            }
+        }
+        char_num--;
+        return Const.NAPIS_SPECJALNY;
+    }
+
+    private int valueOfAttrSymbol() {
+        getNextChar();
+        while (!isDoubleQuotes()) {
+            if (isLessThenCharacter()) {
+                return 1;
+            }
+
+            getNextCharIfPossible();
+        }
+
+        char_num++;
+        return Const.WAR_ATR;
+    }
+
+    private int equalSymbol() {
+        return Const.ROW;
+    }
+
+    private int slashSymbol() {
+        if (isNextCharacterOfAGreaterThanCharacter()) {
+            tagId.remove(tagId.size() - 1);
+        }
+        return Const.UKOS;
+    }
+
+    private int endOfTagSymbol() {
+        if (char_num < xml.length()) {
+            if (!isNextCharacterOfALessThanCharacter())
+                insideTag = true;
+        }
+        return Const.ZAM;
+    }
+
+    private int endOfXmlDeclarationSymbol() {
+        char_num = char_num + 1;
+        return Const.XML_END;
+    }
+
+    private int startOfEndOfTagWithTagNameSymbol() {
+        char_num++;
+        getNextChar();
+
+        strBld.setLength(0);
+        while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
+            strBld.append(currentCharacter);
+            getNextCharIfPossible();
+        }
+
+        if (isOpeningTagEqualsToClosingTag()) { //sprawdz tag otwierajacy z zamykajacym
+            System.err.println("Tag zamykaj¹cy: <" + strBld.toString() + "> nie zgadza siê z otwieraj¹cym: <" + tagId.get(tagId.size() - 1) + ">");
+            return 1;
+        } else {
+            tagId.remove(tagId.size() - 1);
+        }
+
+        return Const.OTW_SL_ID;
+    }
+
+    private int endOfXmlFileSymbol() {
+        return Const.KONIEC;
+    }
+
+    private int startOfTagWithTagNameSymbol() {
+        getNextChar();
+        strBld.setLength(0);
+        while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
+            strBld.append(currentCharacter);
+            getNextCharIfPossible();
+        }
+        tagId.add(strBld.toString()); //dodaje ID tagu do listy
+
+        return Const.OTW_ID;
+    }
+
+    private void skipComment() {
+        char_num = char_num + 3;
+        getNextChar();
+        while (!isEndOfComment()) {
+            getNextCharIfPossible();
+        }
+        char_num = char_num + 4;
+    }
+
+    private int startOfXmlDeclarationSymbol() {
+        char_num = char_num + 4;
+        return Const.XML_ST;
+    }
+
+    private boolean isWhitespace() {
+        return Character.isWhitespace(currentCharacter);
+    }
+
+    private boolean isLetter() {
+        return Character.isLetter(currentCharacter);
+    }
+
+    private boolean isDoubleQuotes() {
+        return currentCharacter == '"';
+    }
+
+    private boolean isEqualsCharacter() {
+        return currentCharacter == '=';
+    }
+
+    private boolean isSlashCharacter() {
+        return currentCharacter == '/';
+    }
+
+    private boolean isNextCharacterOfALessThanCharacter() {
+        return xml.charAt(char_num) == '<';
+    }
+
     private boolean isGreaterThanCharacter() {
+        return currentCharacter == '>';
+    }
+
+    private boolean isNextCharacterOfAGreaterThanCharacter() {
         return xml.charAt(char_num) == '>';
     }
 
     private boolean isQuestionMark() {
-        return t == '?';
+        return currentCharacter == '?';
     }
 
     private boolean isOpeningTagEqualsToClosingTag() {
@@ -173,27 +248,27 @@ public class Lekser {
         }
     }
 
-    private boolean isSlashCharacter() {
+    private boolean isNextCharacterOfASlashCharacter() {
         return xml.charAt(char_num) == '/';
     }
 
     private boolean isHyphenCharacter() {
-        return t == '-';
+        return currentCharacter == '-';
     }
 
     private boolean isUnderscoreCharacter() {
-        return t == '_';
+        return currentCharacter == '_';
     }
 
     private boolean isDotCharacter() {
-        return t == '.';
+        return currentCharacter == '.';
     }
 
     private boolean isLetterOrDigit() {
-        return Character.isLetterOrDigit(t);
+        return Character.isLetterOrDigit(currentCharacter);
     }
 
-    private boolean isLetter() {
+    private boolean isNextCharacterOfALetter() {
         return Character.isLetter(xml.charAt(char_num));
     }
 
@@ -210,19 +285,15 @@ public class Lekser {
     }
 
     private boolean isLessThenCharacter() {
-        return t == '<';
-    }
-
-    private boolean isNewLineCharacter() {
-        return t == '\n';
+        return currentCharacter == '<';
     }
 
     private boolean isSpaceOrTabCharacter() {
-        return t == ' ' || t == '\t';
+        return currentCharacter == ' ' || currentCharacter == '\t';
     }
 
     private void getNextChar() {
-        t = xml.charAt(char_num); //pobierz znak z xmla
+        currentCharacter = xml.charAt(char_num); //pobierz znak z xmla
     }
 
     private boolean isLastCharacter() {

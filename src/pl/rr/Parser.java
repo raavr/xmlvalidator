@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * @author rykowskr
  */
 
-/* GRAMMA
+/* Gramma
 
     S ---> XML_START atrybuty XML_END tag_root END
     tag_root ---> LESSTHAN_ID atrybuty GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN
@@ -23,8 +23,7 @@ public class Parser {
     private ArrayList<Integer> newLinesIdxList;
     private Gramma currentLeks;
     private Lekser lekser;
-
-
+    
     public Parser(String file, ArrayList list) {
         newLinesIdxList = new ArrayList<Integer>(list);
         lekser = new Lekser(file);

@@ -5,7 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9961d2ca-bbdf-4729-b2c2-539e28e47769" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/sample_xml" afterPath="$PROJECT_DIR$/sample_xml" />
+      <change type="DELETED" beforePath="C:\Users\Rafal\IdeaProjects\XMLvalidator\out\production\XMLvalidator\pl\rr\Constant.class" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Gramma.class" afterPath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Gramma.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Parser$1.class" afterPath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Parser$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Parser.class" afterPath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Parser.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Validator.class" afterPath="$PROJECT_DIR$/out/production/XMLvalidator/pl/rr/Validator.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/pl/rr/Parser.java" afterPath="$PROJECT_DIR$/src/pl/rr/Parser.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="XMLvalidator.iws" />
@@ -28,10 +33,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="sample_xml" pinned="false" current-in-tab="true">
+      <file leaf-file-name="sample_xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sample_xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.78289473">
+            <state vertical-scroll-proportion="0.0">
               <caret line="28" column="19" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
               <folding />
             </state>
@@ -54,7 +59,7 @@
         <entry file="file://$PROJECT_DIR$/src/pl/rr/Gramma.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="3" column="19" selection-start-line="3" selection-start-column="19" selection-end-line="3" selection-end-column="19" />
+              <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -124,11 +129,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Parser.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Parser.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/pl/rr/Parser.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.6990132">
+              <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
               <folding />
             </state>
           </provider>
@@ -160,11 +165,12 @@
         <option value="$PROJECT_DIR$/file" />
         <option value="$PROJECT_DIR$/src/pl/rr/Constant.java" />
         <option value="$PROJECT_DIR$/src/pl/rr/Lekser.java" />
-        <option value="$PROJECT_DIR$/src/pl/rr/Parser.java" />
         <option value="$PROJECT_DIR$/src/pl/rr/ErrorMsgs.java" />
-        <option value="$PROJECT_DIR$/src/pl/rr/Gramma.java" />
         <option value="$PROJECT_DIR$/src/pl/rr/Validator.java" />
         <option value="$PROJECT_DIR$/sample_xml" />
+        <option value="$PROJECT_DIR$/src/pl/rr/GRAMMA.java" />
+        <option value="$PROJECT_DIR$/src/pl/rr/Gramma.java" />
+        <option value="$PROJECT_DIR$/src/pl/rr/Parser.java" />
       </list>
     </option>
   </component>
@@ -466,11 +472,40 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/pl/rr/Parser.java">
+    <entry file="file://$PROJECT_DIR$/sample_xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+          <caret line="28" column="19" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/rr/Gramma.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/rr/ErrorMsgs.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="8" column="3" selection-start-line="8" selection-start-column="3" selection-end-line="8" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/pl/rr/Validator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#309#318#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -523,39 +558,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/rr/Validator.java">
+    <entry file="file://$PROJECT_DIR$/src/pl/rr/Parser.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#309#318#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/rr/Gramma.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="3" column="19" selection-start-line="3" selection-start-column="19" selection-end-line="3" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/pl/rr/ErrorMsgs.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="3" selection-start-line="8" selection-start-column="3" selection-end-line="8" selection-end-column="19" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/sample_xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.78289473">
-          <caret line="28" column="19" selection-start-line="28" selection-start-column="19" selection-end-line="28" selection-end-column="19" />
+        <state vertical-scroll-proportion="0.6990132">
+          <caret line="25" column="4" selection-start-line="25" selection-start-column="4" selection-end-line="25" selection-end-column="4" />
           <folding />
         </state>
       </provider>

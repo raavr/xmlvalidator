@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class Parser {
 
     private ArrayList<Integer> newLinesIdxList;
-    private GrammaEnum currentLeks;
+    private Gramma currentLeks;
     private Lekser lekser;
 
     public Parser(String file, ArrayList list) {
@@ -65,22 +65,22 @@ public class Parser {
         pobierzLeksem(currentLeks);
 
         //s -> XML_START atrybuty XML_END tag_root END
-        pobierzLeksem(GrammaEnum.XML_START);
+        pobierzLeksem(Gramma.XML_START);
         atrybuty();
-        pobierzLeksem(GrammaEnum.XML_END);
+        pobierzLeksem(Gramma.XML_END);
         tag_root();
-        pobierzLeksem(GrammaEnum.END);
+        pobierzLeksem(Gramma.END);
         System.out.println("==================");
         System.out.println("XML jest poprawny.");
         System.out.println("==================");
 
     }
 
-    private void pobierzLeksem(GrammaEnum s) {
+    private void pobierzLeksem(Gramma s) {
         if (currentLeks == s) {
             currentLeks = lekser.lekser();
         } else {
-            if(currentLeks == GrammaEnum.TAG_NOT_EQUALS)
+            if(currentLeks == Gramma.TAG_NOT_EQUALS)
                 System.err.println("Tag zamykający: " + lekser.getClosingTag() + " nie zgadza się z otwierającym: " + lekser.getOpeningTag());
             System.err.println("Błąd składni " + ErrorMsgs.hm.get(s) + " linia: " + getLineNumber() + " numer " + getNumberAtLine());
             System.exit(0);
@@ -104,9 +104,9 @@ public class Parser {
     private void atrybut() {
         switch (currentLeks) {
             case ATTR_NAME:
-                pobierzLeksem(GrammaEnum.ATTR_NAME);
-                pobierzLeksem(GrammaEnum.EQ);
-                pobierzLeksem(GrammaEnum.ATTR_VALUE);
+                pobierzLeksem(Gramma.ATTR_NAME);
+                pobierzLeksem(Gramma.EQ);
+                pobierzLeksem(Gramma.ATTR_VALUE);
                 break;
             default:
                 break;
@@ -118,12 +118,12 @@ public class Parser {
         switch (currentLeks) {
 
             case LESSTHAN_ID:
-                pobierzLeksem(GrammaEnum.LESSTHAN_ID);
+                pobierzLeksem(Gramma.LESSTHAN_ID);
                 atrybuty();
-                pobierzLeksem(GrammaEnum.GREATERTHAN);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
-                pobierzLeksem(GrammaEnum.LESSTHAN_SLASH_ID);
-                pobierzLeksem(GrammaEnum.GREATERTHAN);
+                pobierzLeksem(Gramma.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 break;
             default:
                 System.err.println("Blad skladni tag_root");
@@ -133,12 +133,12 @@ public class Parser {
     private void tag() {
         switch (currentLeks) {
             case LESSTHAN_ID:
-                pobierzLeksem(GrammaEnum.LESSTHAN_ID);
+                pobierzLeksem(Gramma.LESSTHAN_ID);
                 atrybuty();
                 tag_kont();
                 break;
             case ANY_STRING:
-                pobierzLeksem(GrammaEnum.ANY_STRING);
+                pobierzLeksem(Gramma.ANY_STRING);
                 tag();
                 break;
             default:
@@ -151,15 +151,15 @@ public class Parser {
     private void tag_kont() {
         switch (currentLeks) {
             case SLASH:
-                pobierzLeksem(GrammaEnum.SLASH);
-                pobierzLeksem(GrammaEnum.GREATERTHAN);
+                pobierzLeksem(Gramma.SLASH);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
                 break;
             case GREATERTHAN:
-                pobierzLeksem(GrammaEnum.GREATERTHAN);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
-                pobierzLeksem(GrammaEnum.LESSTHAN_SLASH_ID);
-                pobierzLeksem(GrammaEnum.GREATERTHAN);
+                pobierzLeksem(Gramma.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
                 break;
             default:

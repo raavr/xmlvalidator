@@ -10,21 +10,21 @@ import java.util.Map;
  */
 public class ErrorMsgs {
 
-    public static final Map<Gramma, String> hm;
+    public static final Map<GrammaEnum, String> hm;
     //for error msgs
     static {
-        HashMap<Gramma, String> _hm = new HashMap<>();
-        _hm.put(Gramma.XML_START, "<?xml");
-        _hm.put(Gramma.XML_END, "?>");
-        _hm.put(Gramma.GREATERTHAN, "domknięcia '>'");
-        _hm.put(Gramma.SLASH, "ukośnika '/'");
-        _hm.put(Gramma.EQ, "rowności '='");
-        _hm.put(Gramma.ANY_STRING, "we wnętrzu taga");
-        _hm.put(Gramma.ATTR_VALUE, "wartości atrybutu");
-        _hm.put(Gramma.LESSTHAN_SLASH_ID, "id tagu zamykającego");
-        _hm.put(Gramma.LESSTHAN_ID, "id tagu otwierającego");
-        _hm.put(Gramma.ATTR_NAME, "rodzaju atybutu");
-        _hm.put(Gramma.END, "końcu");
+        HashMap<GrammaEnum, String> _hm = new HashMap<>();
+        _hm.put(GrammaEnum.XML_START, "<?xml");
+        _hm.put(GrammaEnum.XML_END, "?>");
+        _hm.put(GrammaEnum.GREATERTHAN, "domknięcia '>'");
+        _hm.put(GrammaEnum.SLASH, "ukośnika '/'");
+        _hm.put(GrammaEnum.EQ, "rowności '='");
+        _hm.put(GrammaEnum.ANY_STRING, "we wnętrzu taga");
+        _hm.put(GrammaEnum.ATTR_VALUE, "wartości atrybutu");
+        _hm.put(GrammaEnum.LESSTHAN_SLASH_ID, "id tagu zamykającego");
+        _hm.put(GrammaEnum.LESSTHAN_ID, "id tagu otwierającego");
+        _hm.put(GrammaEnum.ATTR_NAME, "rodzaju atybutu");
+        _hm.put(GrammaEnum.END, "końcu");
         hm = Collections.unmodifiableMap(_hm);
     }
 

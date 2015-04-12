@@ -3,7 +3,7 @@ package pl.rr;
 /**
  * @author rykowskr
  */
-public enum Gramma {
+public enum GrammaEnum {
 
     XML_START, // <?xml
     XML_END, // ?>

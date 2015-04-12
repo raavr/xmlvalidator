@@ -25,7 +25,7 @@ public class Lekser {
         return nextCharNumber;
     }
 
-    public int lekser() {
+    public Gramma lekser() {
 
         while (true) {
             if (isLastCharacter())
@@ -47,7 +47,7 @@ public class Lekser {
                 //... the beginning of a comment, skip until find "-->"
                 else if (isStartOfComment()) {
                     if(skipComment() == -1)
-                        return Constant.ERROR;
+                        return Gramma.ERROR;
                 }
 
                 //... any string, return LESSTHAN_ID
@@ -103,74 +103,74 @@ public class Lekser {
 
     }
 
-    private int xmlElementSymbol() {
+    private Gramma xmlElementSymbol() {
         insideTag = false;
         while (!isLessThanCharacter() || isWhitespace()) {
             if (!isCorrectIndex())
-                return Constant.ERROR;
+                return Gramma.ERROR;
 
             setCurrentChar();
         }
         nextCharNumber--;
-        return Constant.ANY_STRING;
+        return Gramma.ANY_STRING;
     }
 
-    private int attrSymbol() {
+    private Gramma attrSymbol() {
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
             if (!isCorrectIndex())
-                return Constant.ERROR;
+                return Gramma.ERROR;
 
             setCurrentChar();
 
         }
         nextCharNumber--;
-        return Constant.ATTR_NAME;
+        return Gramma.ATTR_NAME;
     }
 
-    private int valueOfAttrSymbol() {
+    private Gramma valueOfAttrSymbol() {
         if (!isCorrectIndex())
-            return Constant.ERROR;
+            return Gramma.ERROR;
         setCurrentChar();
 
         while (!isDoubleQuotes()) {
             if (isLessThanCharacter() || !isCorrectIndex()) {
-                return Constant.ERROR;
+                return Gramma.ERROR;
             }
             setCurrentChar();
         }
 
-        return Constant.ATTR_VALUE;
+        return Gramma.ATTR_VALUE;
     }
 
-    private int equalSymbol() {
-        return Constant.EQ;
+    private Gramma equalSymbol() {
+        return Gramma.EQ;
     }
 
-    private int slashSymbol() {
+    private Gramma slashSymbol() {
         if (isNextCharacterOfAGreaterThanCharacter()) {
             if(tagId.size() > 0)
                 tagId.remove(tagId.size() - 1);
         }
-        return Constant.SLASH;
+        return Gramma.SLASH;
     }
 
-    private int endOfTagSymbol() {
+    private Gramma endOfTagSymbol() {
         if (isCorrectIndex()) {
             if (!isNextCharacterOfALessThanCharacter())
                 insideTag = true;
         }
-        return Constant.GREATERTHAN;
+        return Gramma.GREATERTHAN;
     }
 
-    private int endOfXmlDeclarationSymbol() {
+    private Gramma endOfXmlDeclarationSymbol() {
         nextCharNumber++;
-        return Constant.XML_END;
+        return Gramma.XML_END;
     }
 
-    private int startOfEndOfTagPlusTagNameSymbol() {
+    private Gramma startOfEndOfTagPlusTagNameSymbol() {
         nextCharNumber++;
         if (!isCorrectIndex())
-            return Constant.ERROR;
+            return Gramma.ERROR;
 
         setCurrentChar();
 
@@ -178,30 +178,30 @@ public class Lekser {
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
             strBld.append(currentCharacter);
             if (!isCorrectIndex())
-                return Constant.ERROR;
+                return Gramma.ERROR;
 
             setCurrentChar();
         }
 
         if (!isOpeningTagEqualsToClosingTag()) {
-            return Constant.TAG_NOT_EQUALS;
+            return Gramma.TAG_NOT_EQUALS;
         } else {
             tagId.remove(tagId.size() - 1);
         }
 
         nextCharNumber--;
-        return Constant.LESSTHAN_SLASH_ID;
+        return Gramma.LESSTHAN_SLASH_ID;
     }
 
 
-    private int endOfXmlFileSymbol() {
-        return Constant.END;
+    private Gramma endOfXmlFileSymbol() {
+        return Gramma.END;
     }
 
 
-    private int startOfTagWithTagNameSymbol() {
+    private Gramma startOfTagWithTagNameSymbol() {
         if (!isCorrectIndex())
-            return Constant.ERROR;
+            return Gramma.ERROR;
 
         setCurrentChar();
 
@@ -209,7 +209,7 @@ public class Lekser {
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
             strBld.append(currentCharacter);
             if (!isCorrectIndex())
-                return Constant.ERROR;
+                return Gramma.ERROR;
 
             setCurrentChar();
         }
@@ -217,20 +217,20 @@ public class Lekser {
         tagId.add(strBld.toString());
         nextCharNumber--;
 
-        return Constant.LESSTHAN_ID;
+        return Gramma.LESSTHAN_ID;
     }
 
 
     private int skipComment() {
         nextCharNumber = nextCharNumber + 3;
         if (!isCorrectIndex())
-            return Constant.ERROR;
+            return -1;
 
         setCurrentChar();
 
         while (!isEndOfComment()) {
             if (!isCorrectIndex())
-                return Constant.ERROR;
+                return -1;
 
             setCurrentChar();
         }
@@ -239,9 +239,9 @@ public class Lekser {
         return 0;
     }
 
-    private int startOfXmlDeclarationSymbol() {
+    private Gramma startOfXmlDeclarationSymbol() {
         nextCharNumber = nextCharNumber + 4;
-        return Constant.XML_START;
+        return Gramma.XML_START;
     }
 
     private boolean isWhitespace() {

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class Parser {
 
     private ArrayList<Integer> newLinesIdxList;
-    private int currentLeks;
+    private Gramma currentLeks;
     private Lekser lekser;
 
 
@@ -63,28 +63,27 @@ public class Parser {
 
     public void parser() {
         System.out.println("...Zaczynam parsować plik XML...");
-        currentLeks = 0;
-        pobierzLeksem(0);
+        pobierzLeksem(currentLeks);
 
         //s -> XML_START atrybuty XML_END tag_root END
-        pobierzLeksem(Constant.XML_START);
+        pobierzLeksem(Gramma.XML_START);
         atrybuty();
-        pobierzLeksem(Constant.XML_END);
+        pobierzLeksem(Gramma.XML_END);
         tag_root();
-        pobierzLeksem(Constant.END);
+        pobierzLeksem(Gramma.END);
         System.out.println("==================");
         System.out.println("XML jest poprawny.");
         System.out.println("==================");
 
     }
 
-    private void pobierzLeksem(int s) {
+    private void pobierzLeksem(Gramma s) {
         if (currentLeks == s) {
             currentLeks = lekser.lekser();
         } else {
-            if(currentLeks == Constant.TAG_NOT_EQUALS)
+            if(currentLeks == Gramma.TAG_NOT_EQUALS)
                 System.err.println("Tag zamykający: " + lekser.getClosingTag() + " nie zgadza się z otwierającym: " + lekser.getOpeningTag());
-            System.err.println("Błąd składni " + Constant.hm.get(s) + " linia: " + getLineNumber() + " numer " + getNumberAtLine());
+            System.err.println("Błąd składni " + ErrorMsgs.hm.get(s) + " linia: " + getLineNumber() + " numer " + getNumberAtLine());
             System.exit(0);
 
         }
@@ -93,7 +92,7 @@ public class Parser {
     //atrybuty ---> atrybut atrybuty | ?
     private void atrybuty() {
         switch (currentLeks) {
-            case Constant.ATTR_NAME:
+            case ATTR_NAME:
                 atrybut();
                 atrybuty();
                 break;
@@ -105,10 +104,10 @@ public class Parser {
     //atrybut ---> NAPIS_SECJALNY EQ ATTR_VALUE | ?
     private void atrybut() {
         switch (currentLeks) {
-            case Constant.ATTR_NAME:
-                pobierzLeksem(Constant.ATTR_NAME);
-                pobierzLeksem(Constant.EQ);
-                pobierzLeksem(Constant.ATTR_VALUE);
+            case ATTR_NAME:
+                pobierzLeksem(Gramma.ATTR_NAME);
+                pobierzLeksem(Gramma.EQ);
+                pobierzLeksem(Gramma.ATTR_VALUE);
                 break;
             default:
                 break;
@@ -119,13 +118,13 @@ public class Parser {
     private void tag_root() {
         switch (currentLeks) {
 
-            case Constant.LESSTHAN_ID:
-                pobierzLeksem(Constant.LESSTHAN_ID);
+            case LESSTHAN_ID:
+                pobierzLeksem(Gramma.LESSTHAN_ID);
                 atrybuty();
-                pobierzLeksem(Constant.GREATERTHAN);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
-                pobierzLeksem(Constant.LESSTHAN_SLASH_ID);
-                pobierzLeksem(Constant.GREATERTHAN);
+                pobierzLeksem(Gramma.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 break;
             default:
                 System.err.println("Blad skladni tag_root");
@@ -134,13 +133,13 @@ public class Parser {
     //tag ---> LESSTHAN_ID atrybuty tag_kont | ANY_STRING tag | ?
     private void tag() {
         switch (currentLeks) {
-            case Constant.LESSTHAN_ID:
-                pobierzLeksem(Constant.LESSTHAN_ID);
+            case LESSTHAN_ID:
+                pobierzLeksem(Gramma.LESSTHAN_ID);
                 atrybuty();
                 tag_kont();
                 break;
-            case Constant.ANY_STRING:
-                pobierzLeksem(Constant.ANY_STRING);
+            case ANY_STRING:
+                pobierzLeksem(Gramma.ANY_STRING);
                 tag();
                 break;
             default:
@@ -152,16 +151,16 @@ public class Parser {
     //tag_kont ---> GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN tag
     private void tag_kont() {
         switch (currentLeks) {
-            case Constant.SLASH:
-                pobierzLeksem(Constant.SLASH);
-                pobierzLeksem(Constant.GREATERTHAN);
+            case SLASH:
+                pobierzLeksem(Gramma.SLASH);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
                 break;
-            case Constant.GREATERTHAN:
-                pobierzLeksem(Constant.GREATERTHAN);
+            case GREATERTHAN:
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
-                pobierzLeksem(Constant.LESSTHAN_SLASH_ID);
-                pobierzLeksem(Constant.GREATERTHAN);
+                pobierzLeksem(Gramma.LESSTHAN_SLASH_ID);
+                pobierzLeksem(Gramma.GREATERTHAN);
                 tag();
                 break;
             default:

@@ -10,9 +10,6 @@ import java.util.ArrayList;
  */
 public class Validator {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
 
         StringBuffer cont = new StringBuffer();

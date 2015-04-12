@@ -23,7 +23,7 @@ public class Parser {
     private ArrayList<Integer> newLinesIdxList;
     private Gramma currentLeks;
     private Lekser lekser;
-    
+
     public Parser(String file, ArrayList list) {
         newLinesIdxList = new ArrayList<Integer>(list);
         lekser = new Lekser(file);
@@ -31,7 +31,7 @@ public class Parser {
 
     private int getLineNumber() {
         int lineNumber = 1;
-        int indexOfError = lekser.getNextCharNumber();
+        int indexOfError = lekser.getNextCharIndex();
 
         if(newLinesIdxList.size() <= 1)
             return lineNumber;
@@ -47,7 +47,7 @@ public class Parser {
     }
 
     private int getNumberAtLine() {
-        int indexOfError = lekser.getNextCharNumber();
+        int indexOfError = lekser.getNextCharIndex();
 
         if(newLinesIdxList.size() == 1)
             return (indexOfError - newLinesIdxList.get(0) + 1);

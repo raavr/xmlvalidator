@@ -20,38 +20,50 @@ import java.util.ArrayList;
  */
 public class Parser {
 
-    private ArrayList<Integer> listind;
-    private int biezacy_leks;
+    private ArrayList<Integer> newLinesIdxList;
+    private int currentLeks;
     private Lekser lekser;
 
 
     public Parser(String file, ArrayList list) {
-        listind = new ArrayList<Integer>(list);
+        newLinesIdxList = new ArrayList<Integer>(list);
         lekser = new Lekser(file);
     }
 
-    public void wypisz() {
-        System.err.println("Blad skladni " + Constant.hm.get(biezacy_leks));
+    private int getLineNumber() {
+        int lineNumber = 1;
+        int indexOfError = lekser.getNextCharNumber();
+
+        if(newLinesIdxList.size() <= 1)
+            return lineNumber;
+
+        for(int i = 1; i < newLinesIdxList.size(); i++)
+            if(newLinesIdxList.get(i) < indexOfError)
+                lineNumber++;
+            else
+               return lineNumber;
+
+
+        return lineNumber;
     }
 
-    //do sygnalizacji bledow - zwraca indeks blednego znaku z oryginalnego pliku XML
-    private int zwrocIndeks() {
-        int i = 1;
-        for(int j : listind)
-            if (j > lekser.getNextCharNumber())
-                if(listind.get(1) > lekser.getNextCharNumber())
-                    return i-1;
-                else
-                    return i;
-            else if (j == lekser.getNextCharNumber())
-                return i+1;
-            else i++;
-        return -1;
+    private int getNumberAtLine() {
+        int indexOfError = lekser.getNextCharNumber();
+
+        if(newLinesIdxList.size() == 1)
+            return (indexOfError - newLinesIdxList.get(0) + 1);
+
+        for(int i = 1; i < newLinesIdxList.size(); i++)
+            if(newLinesIdxList.get(i) > indexOfError)
+                return indexOfError - newLinesIdxList.get(i - 1) + 1;
+
+        return 0;
     }
+
 
     public void parser() {
-        System.out.println("...Zaczynam parsowa� plik XML...");
-        biezacy_leks = 0;
+        System.out.println("...Zaczynam parsować plik XML...");
+        currentLeks = 0;
         pobierzLeksem(0);
 
         //s -> XML_START atrybuty XML_END tag_root END
@@ -66,9 +78,21 @@ public class Parser {
 
     }
 
+    private void pobierzLeksem(int s) {
+        if (currentLeks == s) {
+            currentLeks = lekser.lekser();
+        } else {
+            if(currentLeks == Constant.TAG_NOT_EQUALS)
+                System.err.println("Tag zamykający: " + lekser.getClosingTag() + " nie zgadza się z otwierającym: " + lekser.getOpeningTag());
+            System.err.println("Błąd składni " + Constant.hm.get(s) + " linia: " + getLineNumber() + " numer " + getNumberAtLine());
+            System.exit(0);
+
+        }
+    }
+
     //atrybuty ---> atrybut atrybuty | ?
     private void atrybuty() {
-        switch (biezacy_leks) {
+        switch (currentLeks) {
             case Constant.ATTR_NAME:
                 atrybut();
                 atrybuty();
@@ -80,7 +104,7 @@ public class Parser {
 
     //atrybut ---> NAPIS_SECJALNY EQ ATTR_VALUE | ?
     private void atrybut() {
-        switch (biezacy_leks) {
+        switch (currentLeks) {
             case Constant.ATTR_NAME:
                 pobierzLeksem(Constant.ATTR_NAME);
                 pobierzLeksem(Constant.EQ);
@@ -93,7 +117,7 @@ public class Parser {
 
     //tag_root ---> LESSTHAN_ID atrybuty GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN
     private void tag_root() {
-        switch (biezacy_leks) {
+        switch (currentLeks) {
 
             case Constant.LESSTHAN_ID:
                 pobierzLeksem(Constant.LESSTHAN_ID);
@@ -109,7 +133,7 @@ public class Parser {
     }
     //tag ---> LESSTHAN_ID atrybuty tag_kont | ANY_STRING tag | ?
     private void tag() {
-        switch (biezacy_leks) {
+        switch (currentLeks) {
             case Constant.LESSTHAN_ID:
                 pobierzLeksem(Constant.LESSTHAN_ID);
                 atrybuty();
@@ -127,7 +151,7 @@ public class Parser {
     //tag_kont ---> SLASH GREATERTHAN tag
     //tag_kont ---> GREATERTHAN tag LESSTHAN_SLASH_ID GREATERTHAN tag
     private void tag_kont() {
-        switch (biezacy_leks) {
+        switch (currentLeks) {
             case Constant.SLASH:
                 pobierzLeksem(Constant.SLASH);
                 pobierzLeksem(Constant.GREATERTHAN);
@@ -145,18 +169,4 @@ public class Parser {
 
         }
     }
-
-
-
-    private void pobierzLeksem(int s) {
-        if (biezacy_leks == s) {
-            biezacy_leks = lekser.lekser();
-        } else {
-            System.err.println("Blad skladni " + Constant.hm.get(s) + " linia: " + (zwrocIndeks()-1) + " numer " + (lekser.getNextCharNumber() - listind.get(zwrocIndeks()-2)));
-            System.exit(0);
-
-        }
-    }
-
-
 }

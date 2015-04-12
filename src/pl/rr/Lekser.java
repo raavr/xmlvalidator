@@ -31,7 +31,7 @@ public class Lekser {
             if (isLastCharacter())
                 return endOfXmlFileSymbol();
 
-            getChar();
+            setCurrentChar();
 
             //if space or tab, skip
             if (isSpaceOrTabCharacter())
@@ -44,9 +44,11 @@ public class Lekser {
                 if (isStartXMLDeclaration())
                     return startOfXmlDeclarationSymbol();
 
-                //... the beginning of a comment, skip until find --> string
-                else if (isStartOfComment())
-                    skipComment();
+                //... the beginning of a comment, skip until find "-->"
+                else if (isStartOfComment()) {
+                    if(skipComment() == -1)
+                        return Constant.ERROR;
+                }
 
                 //... any string, return LESSTHAN_ID
                 else if (isNextCharacterOfALetter())
@@ -54,7 +56,7 @@ public class Lekser {
 
                 //... / and any string, return LESSTHAN_SLASH_ID
                 else if (isNextCharacterOfASlashCharacter())
-                    return startOfEndOfTagWithTagNameSymbol();
+                    return startOfEndOfTagPlusTagNameSymbol();
 
             //if ? and >, return XML_END
             } else if (isQuestionMark() && isNextCharacterOfAGreaterThanCharacter()) {
@@ -88,17 +90,26 @@ public class Lekser {
         }
     }
 
-    private void getChar() {
-        currentCharacter = xml.charAt(nextCharNumber);
-        nextCharNumber++;
+    private void setCurrentChar() {
+            currentCharacter = xml.charAt(nextCharNumber);
+            nextCharNumber++;
+    }
+
+    private boolean isCorrectIndex() {
+        if (nextCharNumber < xml.length())
+            return true;
+
+        return false;
+
     }
 
     private int xmlElementSymbol() {
         insideTag = false;
         while (!isLessThanCharacter() || isWhitespace()) {
-            if (nextCharNumber < xml.length()) {
-                getChar();
-            }
+            if (!isCorrectIndex())
+                return Constant.ERROR;
+
+            setCurrentChar();
         }
         nextCharNumber--;
         return Constant.ANY_STRING;
@@ -106,22 +117,26 @@ public class Lekser {
 
     private int attrSymbol() {
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
-            if (nextCharNumber < xml.length()) {
-                getChar();
-            }
+            if (!isCorrectIndex())
+                return Constant.ERROR;
+
+            setCurrentChar();
+
         }
         nextCharNumber--;
         return Constant.ATTR_NAME;
     }
 
     private int valueOfAttrSymbol() {
-        getChar();
-        while (!isDoubleQuotes()) {
-            if (isLessThanCharacter()) {
-                return -1;
-            }
+        if (!isCorrectIndex())
+            return Constant.ERROR;
+        setCurrentChar();
 
-            getChar();
+        while (!isDoubleQuotes()) {
+            if (isLessThanCharacter() || !isCorrectIndex()) {
+                return Constant.ERROR;
+            }
+            setCurrentChar();
         }
 
         return Constant.ATTR_VALUE;
@@ -133,13 +148,14 @@ public class Lekser {
 
     private int slashSymbol() {
         if (isNextCharacterOfAGreaterThanCharacter()) {
-            tagId.remove(tagId.size() - 1);
+            if(tagId.size() > 0)
+                tagId.remove(tagId.size() - 1);
         }
         return Constant.SLASH;
     }
 
     private int endOfTagSymbol() {
-        if (nextCharNumber < xml.length()) {
+        if (isCorrectIndex()) {
             if (!isNextCharacterOfALessThanCharacter())
                 insideTag = true;
         }
@@ -151,22 +167,24 @@ public class Lekser {
         return Constant.XML_END;
     }
 
-    private int startOfEndOfTagWithTagNameSymbol() {
+    private int startOfEndOfTagPlusTagNameSymbol() {
         nextCharNumber++;
-        getChar();
+        if (!isCorrectIndex())
+            return Constant.ERROR;
+
+        setCurrentChar();
 
         strBld.setLength(0);
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
             strBld.append(currentCharacter);
-            getChar();
+            if (!isCorrectIndex())
+                return Constant.ERROR;
+
+            setCurrentChar();
         }
 
-        if (isOpeningTagEqualsToClosingTag()) {
-            System.err.println("Tag zamykaj¹cy: <"
-                    + strBld.toString() +
-                    "> nie zgadza siê z otwieraj¹cym: <"
-                    + tagId.get(tagId.size() - 1) + ">");
-            return -1;
+        if (!isOpeningTagEqualsToClosingTag()) {
+            return Constant.TAG_NOT_EQUALS;
         } else {
             tagId.remove(tagId.size() - 1);
         }
@@ -182,12 +200,18 @@ public class Lekser {
 
 
     private int startOfTagWithTagNameSymbol() {
-        getChar();
+        if (!isCorrectIndex())
+            return Constant.ERROR;
+
+        setCurrentChar();
 
         strBld.setLength(0);
         while (isLetterOrDigit() || isDotCharacter() || isUnderscoreCharacter() || isHyphenCharacter()) {
             strBld.append(currentCharacter);
-            getChar();
+            if (!isCorrectIndex())
+                return Constant.ERROR;
+
+            setCurrentChar();
         }
 
         tagId.add(strBld.toString());
@@ -197,15 +221,22 @@ public class Lekser {
     }
 
 
-    private void skipComment() {
+    private int skipComment() {
         nextCharNumber = nextCharNumber + 3;
-        getChar();
-        while (!isEndOfComment()) {
-            getChar();
-        }
-        nextCharNumber--;
+        if (!isCorrectIndex())
+            return Constant.ERROR;
 
-        nextCharNumber = nextCharNumber + 4;
+        setCurrentChar();
+
+        while (!isEndOfComment()) {
+            if (!isCorrectIndex())
+                return Constant.ERROR;
+
+            setCurrentChar();
+        }
+        nextCharNumber = nextCharNumber + 3;
+
+        return 0;
     }
 
     private int startOfXmlDeclarationSymbol() {
@@ -234,7 +265,10 @@ public class Lekser {
     }
 
     private boolean isNextCharacterOfALessThanCharacter() {
-        return xml.charAt(nextCharNumber) == '<';
+        if(isCorrectIndex())
+            return xml.charAt(nextCharNumber) == '<';
+
+        return false;
     }
 
     private boolean isGreaterThanCharacter() {
@@ -242,7 +276,10 @@ public class Lekser {
     }
 
     private boolean isNextCharacterOfAGreaterThanCharacter() {
-        return xml.charAt(nextCharNumber) == '>';
+        if(isCorrectIndex())
+            return xml.charAt(nextCharNumber) == '>';
+
+        return false;
     }
 
     private boolean isQuestionMark() {
@@ -250,11 +287,17 @@ public class Lekser {
     }
 
     private boolean isOpeningTagEqualsToClosingTag() {
-        return tagId.get(tagId.size() - 1).compareTo(strBld.toString()) != 0;
+        if(tagId.size() > 0)
+            return tagId.get(tagId.size() - 1).compareTo(strBld.toString()) == 0;
+
+        return false;
     }
 
      private boolean isNextCharacterOfASlashCharacter() {
-        return xml.charAt(nextCharNumber) == '/';
+         if(isCorrectIndex())
+            return xml.charAt(nextCharNumber) == '/';
+
+         return false;
     }
 
     private boolean isHyphenCharacter() {
@@ -274,7 +317,10 @@ public class Lekser {
     }
 
     private boolean isNextCharacterOfALetter() {
-        return Character.isLetter(xml.charAt(nextCharNumber));
+        if(isCorrectIndex())
+            return Character.isLetter(xml.charAt(nextCharNumber));
+
+        return false;
     }
 
     private boolean isEndOfComment() {
@@ -304,8 +350,21 @@ public class Lekser {
         return false;
     }
 
+    public String getOpeningTag() {
+        if(tagId.size() > 1)
+            return tagId.get(tagId.size()-1);
+
+        return "";
+    }
+
+    public String getClosingTag() {
+        return strBld.toString();
+    }
 
     private boolean isXmlStrEqualsSpecialStr(String tab) {
+        if(nextCharNumber + tab.length() > xml.length())
+            return false;
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < tab.length(); i++) {
             sb.append(xml.charAt(nextCharNumber + i));
@@ -317,5 +376,6 @@ public class Lekser {
         return false;
 
     }
+
 }
 
